@@ -1,16 +1,24 @@
 (ns restatic.core
   (:gen-class)
-  (:require [restatic.config :as config]))
+  (:require [restatic.generator :as gen]
+            [restatic.config :as config])
+  (:import [com.typesafe.config ConfigFactory]))
 
+(def ^:dynamic basedir)
+(def ^:dynamic output-dir)
 
-
-(defn- run [conf-file]
-    (with-redefs [config/*config* (config/init conf-file)]
-      (println (config/get-string "test"))))
+(defn generate-site []
+  (do 
+    (.mkdir (java.io.File. (str basedir "/" output-dir)))
+    (gen/generate-index basedir output-dir)))
 
 
 (defn -main
   [& args]
-  (let [basedir (if (empty? args) "." (first args))
-        conf-file (str basedir "/site.conf")]
-    (run conf-file)))
+  (let [base-directory (if (empty? args) "." (first args))
+        conf-file (str base-directory "/site.conf")]
+    (do
+      (with-redefs [config/*config* (config/init conf-file)]
+        (with-redefs [basedir base-directory
+                      output-dir (config/get-string "output-dir")]
+          (generate-site))))))
