@@ -10,7 +10,8 @@
 (defn generate-site []
   (do 
     (.mkdir (java.io.File. (str basedir "/" output-dir)))
-    (gen/generate-index basedir output-dir)))
+    (gen/generate-index basedir output-dir)
+    (gen/generate-posts basedir output-dir)))
 
 
 (defn -main
