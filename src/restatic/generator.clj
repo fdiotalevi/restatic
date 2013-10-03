@@ -12,9 +12,16 @@
   (when (not (empty? files))
     (do
       (let [content (slurp (str basedir "/contents/posts/" (first files)))]
-        (spit (str basedir "/blog/" (first files)) content))
+        (spit (str basedir "/blog/" (first files)) (renderer/render (template basedir "post.mustache") {:post content})))
       (generate-posts basedir output-dir (rest files)))))
 
+(defn generate-pages
+  [basedir output-dir files]
+  (when (not (empty? files))
+    (do
+      (let [content (slurp (str basedir "/contents/pages/" (first files)))]
+        (spit (str basedir "/blog/pages/" (first files)) (renderer/render (template basedir "page.mustache") {:post content})))
+      (generate-pages basedir output-dir (rest files)))))
 
 (defn generate-index 
   [basedir output-dir]
