@@ -14,9 +14,9 @@
 
 (defn generate-site []
   (let [posts-dir (io/file basedir posts-path)
-        posts (fk/ls posts-dir)
+        posts (gen/read-articles posts-dir)
         pages-dir (io/file basedir pages-path)
-        pages (fk/ls pages-dir)] 
+        pages (gen/read-articles pages-dir)] 
     (do
       (fk/rm-rf (io/file basedir output-dir))
       (fk/mkdir (io/file basedir output-dir))
@@ -25,7 +25,6 @@
       (gen/generate-posts basedir output-dir posts)
       (gen/generate-pages basedir output-dir pages)
       (fk/cp-r (io/file basedir "public") (io/file basedir output-dir)))))
-
 
 (defn -main
   [& args]

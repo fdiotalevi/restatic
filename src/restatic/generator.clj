@@ -1,7 +1,8 @@
 (ns restatic.generator
   (:import [java.io File])
   (:require [restatic.config :as config]
-            [clostache.parser :as renderer]))
+            [clostache.parser :as renderer]
+            [file-kit.core :as fk]))
 
 (defn- get-template
   [basedir name]
@@ -30,3 +31,7 @@
   (do
     (spit (str basedir "/"  output-dir "/index.html") (render-template basedir "index.mustache" {}))
     (println "Generated index.html")))
+
+(defn read-articles
+  [directory]
+  (fk/ls directory))
