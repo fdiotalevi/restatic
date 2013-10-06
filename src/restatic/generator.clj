@@ -22,9 +22,8 @@
 
 (defn generate-pages
   [basedir output-dir files]
-  (when (not (empty? files))
-    (doseq [file files]
-      (spit (str basedir "/blog/pages/" (.getName file)) (render-template basedir "page.mustache" {:post (slurp file)})))))
+  (doseq [file files]
+    (spit (str basedir "/blog/pages/" (.getName file)) (render-template basedir "page.mustache" {:post (slurp file)}))))
 
 (defn generate-index 
   [basedir output-dir]
