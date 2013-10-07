@@ -1,8 +1,9 @@
 (ns restatic.generator
-  (:import [java.io File])
+  (:import [java.io File ByteArrayInputStream])
   (:require [restatic.config :as config]
             [clostache.parser :as renderer]
-            [file-kit.core :as fk]))
+            [file-kit.core :as fk]
+            [net.cgrand.enlive-html :as html]))
 
 (defn- get-template
   [basedir name]
@@ -17,14 +18,15 @@
 
 (defn generate-posts
   [basedir output-dir files]
-  (when (not (empty? files))
-    (doseq [file files]
-      (spit (str basedir "/blog/" (.getName file)) (render-template basedir "post.mustache" {:post (slurp file)})))))
+  (doseq [fileDef files]
+    (spit (str basedir "/blog/" (.getName (fileDef :file)))
+          (render-template basedir "post.mustache" {:post (fileDef :content)}))))
 
 (defn generate-pages
   [basedir output-dir files]
-  (doseq [file files]
-    (spit (str basedir "/blog/pages/" (.getName file)) (render-template basedir "page.mustache" {:post (slurp file)}))))
+  (doseq [fileDef files]
+    (spit (str basedir "/blog/pages/" (.getName (fileDef :file)))
+          (render-template basedir "page.mustache" {:post (fileDef :content)}))))
 
 (defn generate-index 
   [basedir output-dir]
@@ -32,6 +34,15 @@
     (spit (str basedir "/"  output-dir "/index.html") (render-template basedir "index.mustache" {}))
     (println "Generated index.html")))
 
+(defn extract-meta 
+  [htmlcontent]
+  (let [parsed-html (html/html-resource (ByteArrayInputStream. (.getBytes (slurp htmlcontent))))]
+    (hash-map :title (:content (first (html/select parsed-html [:.entry-title]))))))
+
 (defn read-articles
   [directory]
-  (fk/ls directory))
+  (map #(hash-map :file %
+                  :content (slurp %)
+                  :meta (extract-meta %))
+       (fk/ls directory)))
+
