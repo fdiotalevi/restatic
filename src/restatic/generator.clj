@@ -29,20 +29,29 @@
           (render-template basedir "page.mustache" {:post (fileDef :content)}))))
 
 (defn generate-index 
-  [basedir output-dir]
+  [basedir output-dir posts pages]
   (do
-    (spit (str basedir "/"  output-dir "/index.html") (render-template basedir "index.mustache" {}))
+    (spit (str basedir "/"  output-dir "/index.html")
+          (render-template basedir "index.mustache" {:posts posts}))
     (println "Generated index.html")))
+
+(defn- content-of 
+  [parsed-html selector]
+  (apply str (:content (first (html/select parsed-html selector)))))
 
 (defn extract-meta 
   [htmlcontent]
   (let [parsed-html (html/html-resource (ByteArrayInputStream. (.getBytes (slurp htmlcontent))))]
-    (hash-map :title (:content (first (html/select parsed-html [:.entry-title]))))))
+    (hash-map :title (content-of parsed-html [:.entry-title])
+              :author-name (content-of parsed-html [:.author :.fn])
+              :published (content-of parsed-html [:.published])
+              :updated (content-of parsed-html [:.updated]))))
 
 (defn read-articles
   [directory]
-  (map #(hash-map :file %
-                  :content (slurp %)
-                  :meta (extract-meta %))
-       (fk/ls directory)))
+  (doall (map #(hash-map :file %
+                         :link (.getName %)
+                         :content (slurp %)
+                         :meta (extract-meta %))
+              (fk/ls directory))))
 
