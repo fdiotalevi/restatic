@@ -19,12 +19,12 @@
         pages-dir (io/file basedir pages-path)
         pages (gen/read-articles pages-dir)] 
     (do
-      (fk/rm-rf (io/file basedir output-dir))
+      #_(fk/rm-rf (io/file basedir output-dir))
       (fk/mkdir (io/file basedir output-dir))
       (fk/mkdir (io/file basedir output-dir "pages"))
       (gen/generate-index basedir output-dir posts pages)
-      (gen/generate-posts basedir output-dir posts)
-      (gen/generate-pages basedir output-dir pages)
+      (gen/generate-posts basedir output-dir posts pages)
+      (gen/generate-pages basedir output-dir posts pages)
       (fk/cp-r (io/file basedir "public") (io/file basedir output-dir)))))
 
 (defn -main

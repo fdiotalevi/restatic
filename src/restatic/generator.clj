@@ -14,19 +14,19 @@
   (let [main-template (get-template basedir "main.mustache")
         inner-template (get-template basedir name)
         rendered-inner-template (renderer/render inner-template data)]
-    (renderer/render main-template {:body rendered-inner-template})))
+    (renderer/render main-template (assoc data :body rendered-inner-template))))
 
 (defn generate-posts
-  [basedir output-dir files]
+  [basedir output-dir files pages]
   (doseq [fileDef files]
     (spit (str basedir "/blog/" (.getName (fileDef :file)))
-          (render-template basedir "post.mustache" {:post (fileDef :content)}))))
+          (render-template basedir "post.mustache" {:post (fileDef :content) :pages pages :posts files}))))
 
 (defn generate-pages
-  [basedir output-dir files]
+  [basedir output-dir posts files]
   (doseq [fileDef files]
     (spit (str basedir "/blog/pages/" (.getName (fileDef :file)))
-          (render-template basedir "page.mustache" {:post (fileDef :content)}))))
+          (render-template basedir "page.mustache" {:post (fileDef :content) :pages files :posts posts}))))
 
 (defn generate-index 
   [basedir output-dir posts pages]
