@@ -19,7 +19,6 @@
         pages-dir (io/file basedir pages-path)
         pages (gen/read-articles pages-dir)] 
     (do
-      #_(println (first posts))
       (fk/rm-rf (io/file basedir output-dir))
       (fk/mkdir (io/file basedir output-dir))
       (fk/mkdir (io/file basedir output-dir "pages"))

@@ -32,7 +32,7 @@
   [basedir output-dir posts pages]
   (do
     (spit (str basedir "/"  output-dir "/index.html")
-          (render-template basedir "index.mustache" {:posts posts}))
+          (render-template basedir "index.mustache" {:posts posts :pages pages :config config/*config*}))
     (println "Generated index.html")))
 
 (defn- content-of 
