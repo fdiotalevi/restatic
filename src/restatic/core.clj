@@ -15,7 +15,7 @@
 
 (defn generate-site []
   (let [posts-dir (io/file basedir posts-path)
-        posts (gen/read-articles posts-dir)
+        posts (reverse (gen/read-articles posts-dir))
         pages-dir (io/file basedir pages-path)
         pages (gen/read-articles pages-dir)] 
     (do
