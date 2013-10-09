@@ -18,22 +18,28 @@
 
 (defn generate-posts
   [basedir output-dir files pages]
-  (doseq [fileDef files]
-    (spit (str basedir "/blog/" (.getName (fileDef :file)))
-          (render-template basedir "post.mustache" {:post (fileDef :content) :pages pages :posts files}))))
+  (do 
+    (doseq [fileDef files]
+      (spit (str basedir "/blog/" (.getName (fileDef :file)))
+            (render-template basedir "post.mustache" {:post (fileDef :content) :pages pages :posts files})))
+    (println "generated" (count files) "posts")))
 
 (defn generate-pages
   [basedir output-dir posts files]
   (doseq [fileDef files]
-    (spit (str basedir "/blog/pages/" (.getName (fileDef :file)))
-          (render-template basedir "page.mustache" {:post (fileDef :content) :pages files :posts posts}))))
+    (let [file-name  (.getName (fileDef :file))
+          custom-template  (or (config/get-string (str "templates." file-name)) "page.mustache")]
+      (do
+        (spit (str basedir "/blog/pages/" file-name)
+              (render-template basedir custom-template {:post (fileDef :content) :pages files :posts posts}))
+        (println "generated" file-name "with template" custom-template)))))
 
 (defn generate-index 
   [basedir output-dir posts pages]
   (do
-    (spit (str basedir "/"  output-dir "/index.html")
-          (render-template basedir "index.mustache" {:posts posts :pages pages :config config/*config*}))
-    (println "Generated index.html")))
+   (spit (str basedir "/"  output-dir "/index.html")
+          (render-template basedir "index.mustache" {:posts posts :firstposts (take 3 posts) :pages pages :config config/*config*}))
+    (println "generated index.html")))
 
 (defn- content-of 
   [parsed-html selector]

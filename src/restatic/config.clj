@@ -5,4 +5,8 @@
 
 (defn init [filename] (with-redefs [*config* (ConfigFactory/parseFile (java.io.File. filename))] *config*))
 
-(defn get-string [name] (.getString *config* name))
+(defn get-string [name]
+  (try
+    (.getString *config* name)
+    (catch java.lang.Throwable t nil)))
+
