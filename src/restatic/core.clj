@@ -25,6 +25,7 @@
       (gen/generate-index basedir output-dir posts pages)
       (gen/generate-posts basedir output-dir posts pages)
       (gen/generate-pages basedir output-dir posts pages)
+      (gen/generate-rss   basedir posts)
       (fk/cp-r (io/file basedir "public") (io/file basedir output-dir)))))
 
 (defn -main

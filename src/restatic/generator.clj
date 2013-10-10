@@ -3,7 +3,8 @@
   (:require [restatic.config :as config]
             [clostache.parser :as renderer]
             [file-kit.core :as fk]
-            [net.cgrand.enlive-html :as html]))
+            [net.cgrand.enlive-html :as html]
+            [clojure.java.io :as io]))
 
 (defn- get-template
   [basedir name]
@@ -61,3 +62,8 @@
                          :meta (extract-meta %))
               (fk/ls directory))))
 
+
+(defn generate-rss
+  [basedir posts]
+  (let [feedContent (renderer/render (slurp "src/templates/rss.mustache") {:feed {:items posts}})]
+    (spit  (io/file basedir (config/get-string "output-dir") "feed.xml") feedContent)))
