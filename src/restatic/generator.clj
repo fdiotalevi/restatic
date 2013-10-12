@@ -66,11 +66,9 @@
 
 (defn generate-rss
   [basedir posts]
-  (let [feedContent (renderer/render (slurp "src/templates/rss.mustache")
-                                     {:feed
-                                      {:title (config/get-string "site_title")
-                                       :link (config/get-string "site_link")
-                                       :items posts}})]
+  (let [datamap {:feed {:feed_title (config/get-string "feed_title")
+                        :feed_link (config/get-string "feed_url")
+                        :items posts}}
+        feedContent (renderer/render (slurp "src/templates/rss.mustache") datamap)]
     (do
-      (println (:title feedContent))
       (spit (io/file basedir (config/get-string "output-dir") "feed.xml") feedContent))))

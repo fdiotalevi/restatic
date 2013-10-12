@@ -32,7 +32,7 @@
   (let [base-directory (if (empty? args) "." (first args))
         conf-file (str base-directory "/site.conf")]
     (do
-      (with-redefs [config/*config* (config/init conf-file)]
-        (with-redefs [basedir base-directory
-                      output-dir (config/get-string "output-dir")]
-          (generate-site))))))
+      (config/init conf-file)
+      (with-redefs [basedir base-directory
+                    output-dir (config/get-string "output-dir")]
+        (generate-site)))))
