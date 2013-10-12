@@ -4,17 +4,17 @@
     {{#feed}}
       <title>{{feed_title}}</title>
       <description>{{description}}</description>
-      <link>{{feed_url}}</link>
-      <copyright>{{copyright-info}}</copyright>
-      <pubDate>{{pub-date}}</pubDate>
-      <lastBuildDate>{{last-build-date}}</lastBuildDate>
+      <link>{{feed_link}}</link>
+      <copyright>{{feed_copyright}}</copyright>
       {{#items}}
         <item>
-          <title>{{title}}</title>
+          {{#meta}}
+            <title>{{title}}</title>
+            <pubDate>{{updated}}</pubDate>
+          {{/meta}}
           <description>{{content}}</description>
-          <link>{{link}}</link>
-          <guid>{{link}}</guid>
-          <pubDate>{{published}}</pubDate>
+          <link>{{feed_link}}/{{link}}</link>
+          <guid>{{feed_link}}/{{link}}</guid>
         </item>
       {{/items}}
     {{/feed}}
