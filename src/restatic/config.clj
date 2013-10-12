@@ -1,12 +1,14 @@
 (ns restatic.config
-    (:import [com.typesafe.config ConfigFactory]))
+  (:require [clojure.java.io :as io]))
 
-(def ^:dynamic *config* (ConfigFactory/load))
+(def ^:dynamic *config* (java.util.Properties.))
 
-(defn init [filename] (with-redefs [*config* (ConfigFactory/parseFile (java.io.File. filename))] *config*))
+(defn init [filename]
+  (.load *config* (java.io.FileInputStream. (io/file filename)))
+  *config*)
 
 (defn get-string [name]
   (try
-    (.getString *config* name)
+    (.getProperty *config* name)
     (catch java.lang.Throwable t nil)))
 

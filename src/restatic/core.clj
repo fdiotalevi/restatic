@@ -5,8 +5,7 @@
             [file-kit.core :as fk]
             [clojure.java.io :as io]
             [net.cgrand.enlive-html :as html])
-  (:import [com.typesafe.config ConfigFactory]
-           [java.io File]))
+  (:import [java.io File]))
 
 (def ^:dynamic basedir)
 (def ^:dynamic output-dir)
