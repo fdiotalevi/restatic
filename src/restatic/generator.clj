@@ -18,12 +18,26 @@
         rendered-inner-template (renderer/render inner-template data)]
     (renderer/render main-template (assoc data :body rendered-inner-template))))
 
+(defn- get-link
+  [file]
+  (.. (.getName file) (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst "-" "/")))
+
+(defn- folder-and-file-name 
+  "maps a file name 2013-01-01-sometthing to 2013/01/01/something"
+  [basedir output-dir file]
+  (let [relPostFile (get-link file)
+        absPostFile (io/file basedir output-dir relPostFile)]
+    (vector (.getParent absPostFile) (.getName absPostFile))))
+
 (defn generate-posts
   [basedir output-dir files pages]
   (do 
     (doseq [fileDef files]
-      (spit (str basedir "/blog/" (.getName (fileDef :file)))
-            (render-template basedir "post.mustache" {:post (fileDef :content) :pages pages :posts files})))
+      (let [postFile (folder-and-file-name basedir output-dir (:file fileDef))]
+        (do
+          (fk/mkdir-p (postFile 0))
+          (spit (io/file (postFile 0) (postFile 1))
+                (render-template basedir "post.mustache" {:post (fileDef :content) :pages pages :posts files})))))
     (println "generated" (count files) "posts")))
 
 (defn generate-pages
@@ -58,7 +72,7 @@
 (defn read-articles
   [directory]
   (doall (map #(hash-map :file %
-                         :link (.getName %)
+                         :link (get-link (io/file %))
                          :content (slurp %)
                          :meta (extract-meta %))
               (fk/ls directory))))
