@@ -1,5 +1,6 @@
 (ns restatic.generator
-  (:import [java.io File ByteArrayInputStream])
+  (:import [java.io File ByteArrayInputStream]
+           [java.text SimpleDateFormat])
   (:require [restatic.config :as config]
             [clostache.parser :as renderer]
             [file-kit.core :as fk]
@@ -61,13 +62,22 @@
   [parsed-html selector]
   (apply str (:content (first (html/select parsed-html selector)))))
 
+(defn- format-date-for-feed
+  [date-string]
+  (try 
+    (let [date-obj (.parse (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss") date-string)
+          rss-format (SimpleDateFormat. "EEE, dd MMM yyyy HH:mm:ss Z")]
+      (.format rss-format date-obj))
+    (catch Throwable t date-string)))
+
 (defn extract-meta 
   [htmlcontent]
   (let [parsed-html (html/html-resource (ByteArrayInputStream. (.getBytes (slurp htmlcontent))))]
     (hash-map :title (content-of parsed-html [:.entry-title])
               :author-name (content-of parsed-html [:.author :.fn])
               :published (content-of parsed-html [:.published])
-              :updated (content-of parsed-html [:.updated]))))
+              :updated (content-of parsed-html [:.updated])
+              :published-in-feed (format-date-for-feed (:datetime (:attrs (first (html/select parsed-html [:.published]))))))))
 
 (defn read-articles
   [directory]
