@@ -21,7 +21,7 @@
 
 (defn- get-link
   [file]
-  (.. (.getName file) (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst "-" "/")))
+  (.. (.getName file) (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst ".html" "/index.html")))
 
 (defn- folder-and-file-name 
   "maps a file name 2013-01-01-sometthing to 2013/01/01/something"
@@ -82,7 +82,7 @@
 (defn read-articles
   [directory]
   (doall (map #(hash-map :file %
-                         :link (get-link (io/file %))
+                         :link (.replaceFirst (get-link (io/file %)) "index.html" "")
                          :content (slurp %)
                          :meta (extract-meta %))
               (fk/ls directory))))
