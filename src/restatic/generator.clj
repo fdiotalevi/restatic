@@ -45,9 +45,11 @@
   [basedir output-dir posts files]
   (doseq [fileDef files]
     (let [file-name  (.getName (fileDef :file))
-          custom-template  (or (config/get-string (str "templates." file-name)) "page.mustache")]
+          custom-template  (or (config/get-string (str "templates." file-name)) "page.mustache")
+          dir-name (str basedir "/blog/pages/" (.replaceFirst file-name ".html" "/"))]
       (do
-        (spit (str basedir "/blog/pages/" file-name)
+        (fk/mkdir-p dir-name)
+        (spit (io/file dir-name "index.html")
               (render-template basedir custom-template {:post (fileDef :content) :pages files :posts posts}))
         (println "generated" file-name "with template" custom-template)))))
 
