@@ -20,15 +20,16 @@
     (renderer/render main-template (assoc data :body rendered-inner-template))))
 
 (defn- get-link
+  "generate the link to a post starting from the file name"
   [file]
-  (.. (.getName file) (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst ".html" "/index.html")))
+  (.. (.getName file) (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst "-" "/") (replaceFirst ".html" "/")))
 
 (defn- folder-and-file-name 
   "maps a file name 2013-01-01-sometthing to 2013/01/01/something"
   [basedir output-dir file]
-  (let [relPostFile (get-link file)
+  (let [relPostFile (str (get-link file) "index.html")
         absPostFile (io/file basedir output-dir relPostFile)]
-    (vector (.getParent absPostFile) (.getName absPostFile))))
+    (hash-map :folder (.getParent absPostFile) :file-name (.getName absPostFile))))
 
 (defn generate-posts
   [basedir output-dir files pages]
@@ -36,8 +37,8 @@
     (doseq [fileDef files]
       (let [postFile (folder-and-file-name basedir output-dir (:file fileDef))]
         (do
-          (fk/mkdir-p (postFile 0))
-          (spit (io/file (postFile 0) (postFile 1))
+          (fk/mkdir-p (:folder postFile))
+          (spit (io/file (:folder postFile) (:file-name postFile))
                 (render-template basedir "post.mustache" {:post (fileDef :content) :pages pages :posts files})))))
     (println "generated" (count files) "posts")))
 
@@ -84,7 +85,7 @@
 (defn read-articles
   [directory]
   (doall (map #(hash-map :file %
-                         :link (.replaceFirst (get-link (io/file %)) "index.html" "")
+                         :link (get-link (io/file %))
                          :content (slurp %)
                          :meta (extract-meta %))
               (fk/ls directory))))
@@ -97,5 +98,6 @@
                         :feed_copyright (config/get-string "feed_copyright")
                         :items posts}}
         feedContent (renderer/render (slurp "src/templates/rss.mustache") datamap)]
-    (do
-      (spit (io/file basedir (config/get-string "output-dir") "rss.xml") feedContent))))
+    (spit
+     (io/file basedir (config/get-string "output-dir") "rss.xml")
+     feedContent)))
